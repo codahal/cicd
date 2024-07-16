@@ -5,7 +5,7 @@ pipeline {
         // Define the backup directory
         BACKUP_DIR = "/Users/ecorfyinc/git"
         // Define the path to the data you want to back up
-        DATA_TO_BACKUP = "/Users/ecorfyinc/data/to/backup"
+        DATA_TO_BACKUP = "/Users/ecorfyinc/git"
     }
 
     stages {
@@ -14,16 +14,6 @@ pipeline {
                 script {
                     // Create the backup directory if it doesn't exist
                     sh "mkdir -p ${BACKUP_DIR}"
-                }
-            }
-        }
-
-        stage('Verify Data to Backup') {
-            steps {
-                script {
-                    // List contents of the directory to back up
-                    echo "Listing contents of ${DATA_TO_BACKUP}:"
-                    sh "ls -la ${DATA_TO_BACKUP} || echo 'Directory does not exist or is empty'"
                 }
             }
         }
@@ -38,7 +28,7 @@ pipeline {
                     def backupFile = "backup_${timestamp}.tar.gz"
 
                     // Create the backup file
-                    sh "tar -czf ${BACKUP_DIR}/${backupFile} -C $(dirname ${DATA_TO_BACKUP}) $(basename ${DATA_TO_BACKUP}) || echo 'Backup failed: Directory or files not found'"
+                    sh "tar -czf ${BACKUP_DIR}/${backupFile} ${DATA_TO_BACKUP}"
 
                     // Save the backup file name to an environment variable for later use
                     env.BACKUP_FILE = backupFile
@@ -49,7 +39,12 @@ pipeline {
         stage('Store Backup') {
             steps {
                 script {
-                    echo "Backup file created: ${BACKUP_DIR}/${env.BACKUP_FILE}"
+                    // Optionally, you can perform additional actions to store the backup file,
+                    // such as copying it to a remote server, uploading to cloud storage, etc.
+                    // Example: Copy to remote server (requires SSH setup)
+                    // sh "scp ${BACKUP_DIR}/${BACKUP_FILE} user@remote:/path/to/remote/backup/directory"
+                    
+                    echo "Backup file created: ${BACKUP_DIR}/${BACKUP_FILE}"
                 }
             }
         }
@@ -63,8 +58,3 @@ pipeline {
         }
     }
 }
-
-      
-                   
-
-   
