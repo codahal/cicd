@@ -1,33 +1,48 @@
 pipeline {
     agent any
-
+    
     environment {
-        // Define the format for the timestamp
-        TIMESTAMP = new Date().format("yyyyMMddHHmmss")
-        
-        // Specify the paths for the project folder and the backup directory
-        PROJECT_FOLDER = "/path/to/your/project"
-        BACKUP_DIR = "/path/to/backup"
-        BACKUP_FILE = "${BACKUP_DIR}/project_backup_${TIMESTAMP}.tar.gz"
+        // Define the backup directory
+        BACKUP_DIR = "/Users/ecorfyinc/git"
     }
 
     stages {
-        stage('Build') {
-            steps {
-                echo "Building the project..."
-                // Your build steps here
-            }
-        }
-        stage('Backup Project Folder') {
+        stage('Prepare Backup') {
             steps {
                 script {
-                    // Create the backup directory if it does not exist
-                    sh "mkdir -p ${env.BACKUP_DIR}"
+                    // Create the backup directory if it doesn't exist
+                    sh "mkdir -p ${BACKUP_DIR}"
+                }
+            }
+        }
+
+        stage('Create Backup') {
+            steps {
+                script {
+                    // Get the current timestamp
+                    def timestamp = new Date().format("yyyyMMddHHmmss")
+
+                    // Define the backup file name with timestamp
+                    def backupFile = "backup_${timestamp}.tar.gz"
+
+                    // Create the backup file
+                    sh "tar -czf ${BACKUP_DIR}/${backupFile} /path/to/data/to/backup"
+
+                    // Save the backup file name to an environment variable for later use
+                    env.BACKUP_FILE = backupFile
+                }
+            }
+        }
+
+        stage('Store Backup') {
+            steps {
+                script {
+                    // Optionally, you can perform additional actions to store the backup file,
+                    // such as copying it to a remote server, uploading to cloud storage, etc.
+                    // Example: Copy to remote server (requires SSH setup)
+                    // sh "scp ${BACKUP_DIR}/${BACKUP_FILE} user@remote:/path/to/remote/backup/directory"
                     
-                    // Create a tar.gz backup of the project folder with the timestamped filename
-                    sh "tar -czf ${env.BACKUP_FILE} -C ${env.PROJECT_FOLDER} ."
-                    
-                    echo "Project folder backed up to ${env.BACKUP_FILE}"
+                    echo "Backup file created: ${BACKUP_DIR}/${BACKUP_FILE}"
                 }
             }
         }
@@ -35,9 +50,11 @@ pipeline {
 
     post {
         always {
-            // Optionally, you can archive the backup file as an artifact in Jenkins
-            archiveArtifacts artifacts: "${env.BACKUP_FILE}", allowEmptyArchive: true
+            script {
+                echo "Pipeline completed. Backup file is located at ${BACKUP_DIR}/${env.BACKUP_FILE}"
+            }
         }
     }
 }
 
+                 
