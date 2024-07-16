@@ -4,6 +4,8 @@ pipeline {
     environment {
         // Define the backup directory
         BACKUP_DIR = "/Users/ecorfyinc/git"
+        // Define the path to the data you want to back up
+        DATA_TO_BACKUP = "/Users/ecorfyinc/git"
     }
 
     stages {
@@ -26,7 +28,7 @@ pipeline {
                     def backupFile = "backup_${timestamp}.tar.gz"
 
                     // Create the backup file
-                    sh "tar -czf ${BACKUP_DIR}/${backupFile} /path/to/data/to/backup"
+                    sh "tar -czf ${BACKUP_DIR}/${backupFile} ${DATA_TO_BACKUP}"
 
                     // Save the backup file name to an environment variable for later use
                     env.BACKUP_FILE = backupFile
@@ -57,4 +59,3 @@ pipeline {
     }
 }
 
-                 
