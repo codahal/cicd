@@ -18,6 +18,15 @@ pipeline {
             }
         }
 
+        stage('Verify Data to Backup') {
+            steps {
+                script {
+                    // List contents of the directory to back up
+                    sh "ls -la ${DATA_TO_BACKUP}"
+                }
+            }
+        }
+
         stage('Create Backup') {
             steps {
                 script {
@@ -28,7 +37,7 @@ pipeline {
                     def backupFile = "backup_${timestamp}.tar.gz"
 
                     // Create the backup file
-                    sh "tar -czf ${BACKUP_DIR}/${backupFile} ${DATA_TO_BACKUP}"
+                    sh "tar -czf ${BACKUP_DIR}/${backupFile} -C $(dirname ${DATA_TO_BACKUP}) $(basename ${DATA_TO_BACKUP})"
 
                     // Save the backup file name to an environment variable for later use
                     env.BACKUP_FILE = backupFile
@@ -59,3 +68,6 @@ pipeline {
     }
 }
 
+                   
+
+   
