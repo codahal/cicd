@@ -5,7 +5,7 @@ pipeline {
         // Define the backup directory
         BACKUP_DIR = "/Users/ecorfyinc/git"
         // Define the path to the data you want to back up
-        DATA_TO_BACKUP = "/Users/ecorfyinc/git"
+        DATA_TO_BACKUP = "/Users/ecorfyinc/data/to/backup"
     }
 
     stages {
@@ -22,7 +22,8 @@ pipeline {
             steps {
                 script {
                     // List contents of the directory to back up
-                    sh "ls -la ${DATA_TO_BACKUP}"
+                    echo "Listing contents of ${DATA_TO_BACKUP}:"
+                    sh "ls -la ${DATA_TO_BACKUP} || echo 'Directory does not exist or is empty'"
                 }
             }
         }
@@ -37,7 +38,7 @@ pipeline {
                     def backupFile = "backup_${timestamp}.tar.gz"
 
                     // Create the backup file
-                    sh "tar -czf ${BACKUP_DIR}/${backupFile} -C $(dirname ${DATA_TO_BACKUP}) $(basename ${DATA_TO_BACKUP})"
+                    sh "tar -czf ${BACKUP_DIR}/${backupFile} -C $(dirname ${DATA_TO_BACKUP}) $(basename ${DATA_TO_BACKUP}) || echo 'Backup failed: Directory or files not found'"
 
                     // Save the backup file name to an environment variable for later use
                     env.BACKUP_FILE = backupFile
@@ -48,12 +49,7 @@ pipeline {
         stage('Store Backup') {
             steps {
                 script {
-                    // Optionally, you can perform additional actions to store the backup file,
-                    // such as copying it to a remote server, uploading to cloud storage, etc.
-                    // Example: Copy to remote server (requires SSH setup)
-                    // sh "scp ${BACKUP_DIR}/${BACKUP_FILE} user@remote:/path/to/remote/backup/directory"
-                    
-                    echo "Backup file created: ${BACKUP_DIR}/${BACKUP_FILE}"
+                    echo "Backup file created: ${BACKUP_DIR}/${env.BACKUP_FILE}"
                 }
             }
         }
@@ -68,6 +64,7 @@ pipeline {
     }
 }
 
+      
                    
 
    
