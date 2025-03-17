@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Define the backup directory
         BACKUP_DIR = "/Users/ecorfyinc/git"
-        // Define the path to the data you want to back up
+        
         DATA_TO_BACKUP = "/Users/ecorfyinc/git"
     }
 
